@@ -2,7 +2,7 @@
 
 SwapShop is a full-stack community-driven platform designed to foster local collaboration, reduce waste, and ensure project continuity. It combines project handoffs, real-time food sharing, and item swapping into a single, cohesive ecosystem.
 
-## 🚀 Key Features
+## Key Features
 
 ### 1. Relay Board (Project Continuity)
 *   **Continuity Protocol:** List unfinished projects, research, or creative works that need a successor.
@@ -30,7 +30,7 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 
 ---
 
-## 🛠 Technical Stack
+## Technical Stack
 
 *   **Frontend:** React.js, Tailwind CSS, Framer Motion (Animations), Leaflet.js (Maps), Lucide React (Icons).
 *   **Backend:** Node.js, Express.js, MongoDB (Mongoose), JWT (Authentication).
@@ -38,7 +38,7 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 *   **Node.js** (v18 or higher recommended)
 *   **MongoDB** (Atlas cluster or local instance)
@@ -51,7 +51,7 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 1.  **Install Dependencies:**
     ```bash
@@ -72,7 +72,7 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 
 ---
 
-## 🛡 Security & Admin Rules
+## Security & Admin Rules
 
 ### Admin Setup
 For security, admin roles cannot be assigned via the UI or API. To grant yourself admin access, run this command in your MongoDB shell or Atlas console after registering:
@@ -91,7 +91,7 @@ db.users.updateOne(
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Auth
 *   `POST /api/auth/register` - Create a new account
