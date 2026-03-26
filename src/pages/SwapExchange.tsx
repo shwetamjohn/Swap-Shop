@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingBag, Plus, Search, ArrowRight, X, User as UserIcon, Tag } from 'lucide-react';
+import { ShoppingBag, Plus, Search, ArrowRight, X, User as UserIcon, Tag, CheckCircle } from 'lucide-react';
 import api from '../lib/api';
+import TrustBadge from '../components/TrustBadge';
 
 interface Item {
   _id: string;
@@ -11,12 +12,15 @@ interface Item {
   image: string;
   category: string;
   ownerName: string;
+  ownerRating?: number;
+  ownerTotalRatings?: number;
   status: 'available' | 'swapped';
 }
 
 const SwapExchange: React.FC = () => {
   const { user } = useAuth();
   const [items, setItems] = useState<Item[]>([]);
+  const [userRequests, setUserRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,28 +34,32 @@ const SwapExchange: React.FC = () => {
   const [category, setCategory] = useState('');
   const [swapMessage, setSwapMessage] = useState('');
 
-  const fetchItems = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/items');
-      setItems(res.data);
+      const [itemsRes, requestsRes] = await Promise.all([
+        api.get('/items/items'),
+        user ? api.get('/items/swapRequests') : Promise.resolve({ data: [] })
+      ]);
+      setItems(itemsRes.data);
+      setUserRequests(requestsRes.data);
     } catch (err) {
-      console.error('Error fetching items:', err);
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    fetchData();
+  }, [user]);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await api.post('/items/addItem', { title, description, image, category });
       setIsModalOpen(false);
-      fetchItems();
+      fetchData();
       // Reset form
       setTitle('');
       setDescription('');
@@ -73,10 +81,15 @@ const SwapExchange: React.FC = () => {
       });
       setIsSwapModalOpen(false);
       setSwapMessage('');
+      fetchData();
       alert('Swap request sent successfully!');
     } catch (err) {
       console.error('Error sending swap request:', err);
     }
+  };
+
+  const hasRequested = (itemId: string) => {
+    return userRequests.some(r => r.itemId?._id === itemId || r.itemId === itemId);
   };
 
   const filteredItems = items.filter(item => 
@@ -85,80 +98,106 @@ const SwapExchange: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-20">
-      <div className="max-w-7xl mx-auto px-6 pt-12">
-        <header className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight text-gray-900 mb-2 uppercase">Swap Exchange</h1>
-            <p className="text-gray-500 font-medium">Direct trade and direct impact. Swap anything.</p>
+    <div className="min-h-screen bg-[#FAF9F6] pb-20 selection:bg-slate-200 selection:text-slate-900">
+      <div className="max-w-7xl mx-auto px-6 pt-16">
+        <header className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-10">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-slate-50 text-slate-500 rounded-full text-[9px] font-bold uppercase tracking-widest border border-slate-100 mb-8">
+              <ShoppingBag className="w-3.5 h-3.5" /> Circular Economy
+            </div>
+            <h1 className="text-6xl md:text-7xl font-display font-normal tracking-tight text-slate-900 mb-8 leading-none">
+              Swap <span className="italic">Exchange</span>
+            </h1>
+            <p className="text-xl text-slate-500 font-normal leading-relaxed">
+              Trade items with your neighbors. No money, just pure community value.
+            </p>
           </div>
           {user && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-8 py-4 bg-black text-white font-black rounded-2xl hover:bg-gray-800 transition-all shadow-xl shadow-black/20 active:scale-95 flex items-center gap-3"
+              className="px-10 py-4 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all soft-shadow flex items-center gap-4 active:scale-95 group"
             >
-              <Plus className="w-5 h-5" /> LIST ITEM
+              <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" /> List New Item
             </button>
           )}
         </header>
 
-        <div className="relative w-full lg:max-w-md mb-12">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="relative w-full lg:max-w-md mb-20">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="Search items or categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-6 py-4 bg-white border-none rounded-2xl shadow-sm focus:ring-2 focus:ring-black transition-all text-sm font-bold"
+            className="w-full pl-14 pr-8 py-4.5 bg-white border border-slate-100 rounded-[24px] soft-shadow focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
           />
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-80 bg-white rounded-[32px] animate-pulse" />
+              <div key={n} className="h-96 bg-white rounded-[40px] animate-pulse soft-shadow" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {filteredItems.map((item) => (
               <motion.div
                 key={item._id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-[32px] border border-gray-100 overflow-hidden hover:shadow-2xl transition-all group"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-[40px] overflow-hidden soft-shadow border border-slate-50 group hover:-translate-y-1.5 transition-all duration-700"
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-56 overflow-hidden">
                   <img
                     src={item.image || `https://picsum.photos/seed/${item._id}/400/300`}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-black">
+                  <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[9px] font-bold uppercase tracking-widest text-slate-900 shadow-sm border border-slate-100">
                     {item.category}
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-black text-gray-900 mb-2 uppercase tracking-tight truncate">{item.title}</h3>
-                  <p className="text-xs text-gray-500 mb-6 line-clamp-2 font-medium leading-relaxed">{item.description}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <UserIcon className="w-4 h-4 text-gray-400" />
-                      </div>
-                      <span className="text-[10px] font-bold text-gray-900">{item.ownerName}</span>
+                <div className="p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:bg-slate-900 group-hover:text-white transition-all duration-500">
+                      <UserIcon className="w-4.5 h-4.5" />
                     </div>
-                    {user && user.id !== (item as any).ownerId && item.status === 'available' && (
-                      <button
-                        onClick={() => {
-                          setSelectedItem(item);
-                          setIsSwapModalOpen(true);
-                        }}
-                        className="p-2 bg-black text-white rounded-xl hover:bg-gray-800 transition-all active:scale-95"
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-900">{item.ownerName}</span>
+                        {item.ownerRating !== undefined && (
+                          <TrustBadge rating={item.ownerRating} size="sm" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 className="text-2xl font-display font-normal text-slate-900 mb-3 tracking-tight truncate group-hover:text-slate-600 transition-colors">{item.title}</h3>
+                  <p className="text-sm text-slate-500 mb-8 line-clamp-2 font-normal leading-relaxed">{item.description}</p>
+                  
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                    {user && user.id !== (item as any).ownerId && item.status === 'available' ? (
+                      hasRequested(item._id) ? (
+                        <div className="flex items-center justify-center w-full gap-3 text-[10px] font-bold uppercase tracking-widest text-green-600 bg-green-50 px-5 py-3.5 rounded-2xl border border-green-100">
+                          <CheckCircle className="w-4 h-4" /> Request Sent
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setIsSwapModalOpen(true);
+                          }}
+                          className="w-full py-4 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-3"
+                        >
+                          Propose Swap <ArrowRight className="w-4 h-4" />
+                        </button>
+                      )
+                    ) : (
+                      <div className="w-full py-4 bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest rounded-2xl flex items-center justify-center italic border border-slate-100">
+                        {item.status === 'swapped' ? 'Item Swapped' : 'Your Listing'}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -177,69 +216,69 @@ const SwapExchange: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/10 backdrop-blur-md"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] p-10 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md bg-white rounded-[40px] p-12 soft-shadow border border-slate-50"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-6 right-6 p-2 text-gray-400 hover:text-black transition-colors"
+                className="absolute top-10 right-10 p-2 text-slate-400 hover:text-slate-900 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
-              <h2 className="text-3xl font-black text-gray-900 mb-8 uppercase tracking-tight">List Item</h2>
-              <form onSubmit={handleAddItem} className="space-y-6">
+              <h2 className="text-4xl font-display font-normal text-slate-900 mb-10 tracking-tight">List <span className="italic">Item</span></h2>
+              <form onSubmit={handleAddItem} className="space-y-8">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-2">Title</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Title</label>
                   <input
                     type="text"
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
                     placeholder="e.g. Vintage Camera"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-2">Description</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Description</label>
                   <textarea
                     required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold min-h-[100px]"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium min-h-[120px]"
                     placeholder="Describe the item and its condition..."
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-2">Image URL</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Image URL</label>
                   <input
                     type="url"
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-2">Category</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Category</label>
                   <input
                     type="text"
                     required
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
                     placeholder="e.g. Electronics, Books, Fashion"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-5 bg-black text-white font-black rounded-3xl hover:bg-gray-800 transition-all shadow-xl shadow-black/20 active:scale-95"
+                  className="w-full py-5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all active:scale-95"
                 >
-                  LIST ITEM
+                  List Item
                 </button>
               </form>
             </motion.div>
@@ -256,38 +295,38 @@ const SwapExchange: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsSwapModalOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/10 backdrop-blur-md"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] p-10 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md bg-white rounded-[40px] p-12 soft-shadow border border-slate-50"
             >
               <button
                 onClick={() => setIsSwapModalOpen(false)}
-                className="absolute top-6 right-6 p-2 text-gray-400 hover:text-black transition-colors"
+                className="absolute top-10 right-10 p-2 text-slate-400 hover:text-slate-900 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
-              <h2 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Swap Request</h2>
-              <p className="text-sm text-gray-500 mb-8 font-medium">Propose a trade for <span className="text-black font-black">{selectedItem.title}</span></p>
-              <form onSubmit={handleSwapRequest} className="space-y-6">
+              <h2 className="text-3xl font-display font-normal text-slate-900 mb-3 tracking-tight">Swap <span className="italic">Request</span></h2>
+              <p className="text-sm text-slate-500 mb-10 font-normal leading-relaxed">Propose a trade for <span className="text-slate-900 font-bold">{selectedItem.title}</span></p>
+              <form onSubmit={handleSwapRequest} className="space-y-8">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 px-2">Your Offer / Message</label>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Your Offer / Message</label>
                   <textarea
                     required
                     value={swapMessage}
                     onChange={(e) => setSwapMessage(e.target.value)}
-                    className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold min-h-[120px]"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium min-h-[140px]"
                     placeholder="Tell the owner what you'd like to trade or offer..."
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-5 bg-black text-white font-black rounded-3xl hover:bg-gray-800 transition-all shadow-xl shadow-black/20 active:scale-95"
+                  className="w-full py-5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all active:scale-95"
                 >
-                  SEND REQUEST
+                  Send Request
                 </button>
               </form>
             </motion.div>

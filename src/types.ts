@@ -18,8 +18,11 @@ export interface User {
   avatar: string;
   trustScore: number;
   verified: boolean;
-  globalImpact: string; // e.g., "Assisting in a project in Germany that is 90% complete"
-  localImpact: string;  // e.g., "Saved 4kg of food from landfills this week"
+  role: 'user' | 'admin';
+  averageRating: number;
+  totalRatings: number;
+  globalImpact: string;
+  localImpact: string;
 }
 
 export interface ResearchProject {

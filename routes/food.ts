@@ -6,14 +6,14 @@ const router = express.Router();
 
 router.post('/', authenticateToken, async (req: AuthRequest, res) => {
   try {
-    const { title, description, coordinates, ttlHours } = req.body;
+    const { title, description, lat, lng, ttlHours } = req.body;
     const expiresAt = new Date(Date.now() + (ttlHours || 24) * 60 * 60 * 1000);
     const food = new Food({
       title,
       description,
       location: {
         type: 'Point',
-        coordinates: coordinates, // [lng, lat]
+        coordinates: [parseFloat(lng), parseFloat(lat)], // [lng, lat]
       },
       ownerId: req.user?.id,
       ownerName: req.user?.name,
@@ -31,20 +31,49 @@ router.get('/nearby', async (req, res) => {
     const { lat, lng, radius } = req.query;
     if (!lat || !lng) return res.status(400).json({ message: 'Latitude and longitude are required' });
 
-    const foods = await Food.find({
-      location: {
-        $near: {
-          $geometry: {
+    const foods = await Food.aggregate([
+      {
+        $geoNear: {
+          near: {
             type: 'Point',
             coordinates: [parseFloat(lng as string), parseFloat(lat as string)],
           },
-          $maxDistance: parseFloat(radius as string || '5000'), // Default 5km
+          distanceField: 'distance',
+          maxDistance: parseFloat(radius as string || '5000'), // Default 5km
+          spherical: true,
+          distanceMultiplier: 0.001, // Convert meters to km
+          query: { expiresAt: { $gt: new Date() } }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'owner',
         },
       },
-      expiresAt: { $gt: new Date() },
-    });
+      {
+        $unwind: '$owner',
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          location: 1,
+          expiresAt: 1,
+          ownerId: 1,
+          ownerName: 1,
+          claimedBy: 1,
+          distance: 1,
+          ownerRating: '$owner.averageRating',
+          ownerTotalRatings: '$owner.totalRatings',
+        },
+      },
+    ]);
     res.json(foods);
   } catch (error) {
+    console.error('Nearby search error:', error);
     res.status(500).json({ message: 'Error searching nearby food' });
   }
 });

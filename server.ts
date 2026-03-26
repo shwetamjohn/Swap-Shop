@@ -13,6 +13,7 @@ import foodRoutes from "./routes/food";
 import itemRoutes from "./routes/items";
 import dashboardRoutes from "./routes/dashboard";
 import adminRoutes from "./routes/admin";
+import userRoutes from "./routes/users";
 
 dotenv.config();
 
@@ -31,9 +32,10 @@ async function startServer() {
   const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/swapshop";
   try {
     await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
+    console.log("Database connected successfully");
   } catch (err) {
-    console.error("MongoDB connection error:", err);
+    console.error("Database connection error:", err);
+    process.exit(1);
   }
 
   // API Routes
@@ -43,6 +45,7 @@ async function startServer() {
   app.use("/api/items", itemRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/admin", adminRoutes);
+  app.use("/api/users", userRoutes);
 
   // Health check
   app.get("/api/health", (req, res) => {

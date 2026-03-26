@@ -78,147 +78,156 @@ const Admin: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <ShieldAlert className="w-6 h-6 text-red-600" />
+    <div className="min-h-screen bg-[#FAF9F6] pb-20 selection:bg-slate-200 selection:text-slate-900">
+      <div className="max-w-7xl mx-auto px-6 pt-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2.5 bg-red-50 rounded-xl border border-red-100">
+                <ShieldAlert className="w-5 h-5 text-red-600" />
+              </div>
+              <div className="px-4 py-1.5 bg-slate-50 text-slate-500 rounded-full text-[9px] font-bold uppercase tracking-widest border border-slate-100">
+                Admin Access
+              </div>
             </div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">Moderation Hub</h1>
+            <h1 className="text-5xl md:text-6xl font-display font-normal tracking-tight text-slate-900 mb-6 leading-none">
+              Moderation <span className="italic text-slate-400">Hub</span>
+            </h1>
+            <p className="text-lg text-slate-500 font-normal leading-relaxed">
+              Platform-wide control and oversight for the community.
+            </p>
           </div>
-          <p className="text-gray-500 font-medium">Platform-wide control and oversight</p>
+
+          <div className="flex bg-white border border-slate-100 p-1.5 rounded-[24px] soft-shadow overflow-x-auto no-scrollbar">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id as Tab);
+                  setSearchTerm('');
+                }}
+                className={`flex items-center gap-3 px-6 py-3.5 rounded-[18px] text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+                  activeTab === tab.id 
+                    ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10' 
+                    : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex bg-white border border-gray-100 p-1 rounded-xl shadow-sm overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id as Tab);
-                setSearchTerm('');
-              }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${
-                activeTab === tab.id 
-                  ? 'bg-black text-white shadow-lg' 
-                  : 'text-gray-500 hover:text-black hover:bg-gray-50'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {activeTab !== 'overview' && (
-        <div className="relative mb-8">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder={`Search ${activeTab}...`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-black outline-none transition-all font-medium"
-          />
-        </div>
-      )}
-
-      <AnimatePresence mode="wait">
-        {loading ? (
-          <motion.div 
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center py-24"
-          >
-            <RefreshCw className="w-12 h-12 text-black animate-spin mb-4" />
-            <span className="font-black uppercase tracking-widest text-sm">Syncing Data...</span>
-          </motion.div>
-        ) : error ? (
-          <motion.div 
-            key="error"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-red-50 border border-red-100 p-8 rounded-3xl text-center"
-          >
-            <ShieldAlert className="w-12 h-12 text-red-600 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-red-900 mb-2">Access Denied or Error</h3>
-            <p className="text-red-700">{error}</p>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {activeTab === 'overview' && data && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <StatCard label="Total Users" value={data.totalUsers} icon={Users} color="blue" />
-                <StatCard label="Active Projects" value={data.totalProjects} icon={Globe} color="purple" />
-                <StatCard label="Food Listings" value={data.totalFood} icon={MapPin} color="orange" />
-                <StatCard label="Items in Exchange" value={data.totalItems} icon={ShoppingBag} color="green" />
-                <StatCard label="Swap Requests" value={data.totalSwaps} icon={RefreshCw} color="indigo" />
-                <StatCard label="Successful Dibs" value={data.claimedDibs} icon={CheckCircle2} color="emerald" />
-              </div>
-            )}
-
-            {activeTab !== 'overview' && (
-              <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                        {getTableHeaders(activeTab).map(header => (
-                          <th key={header} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                            {header}
-                          </th>
-                        ))}
-                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                      {filteredData.map((item: any) => (
-                        <tr key={item._id} className="hover:bg-gray-50/50 transition-colors group">
-                          {renderRowCells(activeTab, item)}
-                          <td className="px-6 py-4 text-right">
-                            <button 
-                              onClick={() => handleDelete(item._id, activeTab.slice(0, -1))}
-                              className="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {filteredData.length === 0 && (
-                    <div className="py-24 text-center">
-                      <p className="text-gray-400 font-medium">No records found matching your criteria.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </motion.div>
+        {activeTab !== 'overview' && (
+          <div className="relative mb-12 max-w-md">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder={`Search ${activeTab}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-8 py-4.5 bg-white border border-slate-100 rounded-[24px] soft-shadow focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
+            />
+          </div>
         )}
-      </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-32"
+            >
+              <RefreshCw className="w-10 h-10 text-slate-900 animate-spin mb-6" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Syncing Data...</span>
+            </motion.div>
+          ) : error ? (
+            <motion.div 
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-red-50 border border-red-100 p-12 rounded-[40px] text-center max-w-2xl mx-auto"
+            >
+              <ShieldAlert className="w-12 h-12 text-red-600 mx-auto mb-6" />
+              <h3 className="text-2xl font-display font-normal text-red-900 mb-3 tracking-tight">Access Denied or Error</h3>
+              <p className="text-red-700 font-normal leading-relaxed">{error}</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-10"
+            >
+              {activeTab === 'overview' && data && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                  <StatCard label="Total Users" value={data.totalUsers} icon={Users} color="slate" />
+                  <StatCard label="Active Projects" value={data.totalProjects} icon={Globe} color="slate" />
+                  <StatCard label="Food Listings" value={data.totalFood} icon={MapPin} color="slate" />
+                  <StatCard label="Items in Exchange" value={data.totalItems} icon={ShoppingBag} color="slate" />
+                  <StatCard label="Swap Requests" value={data.totalSwaps} icon={RefreshCw} color="slate" />
+                  <StatCard label="Successful Dibs" value={data.claimedDibs} icon={CheckCircle2} color="slate" />
+                </div>
+              )}
+
+              {activeTab !== 'overview' && (
+                <div className="bg-white border border-slate-100 rounded-[40px] soft-shadow overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                          {getTableHeaders(activeTab).map(header => (
+                            <th key={header} className="px-8 py-6 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                              {header}
+                            </th>
+                          ))}
+                          <th className="px-8 py-6 text-[9px] font-bold uppercase tracking-widest text-slate-400 text-right">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredData.map((item: any) => (
+                          <tr key={item._id} className="hover:bg-slate-50/30 transition-colors group">
+                            {renderRowCells(activeTab, item)}
+                            <td className="px-8 py-6 text-right">
+                              <button 
+                                onClick={() => handleDelete(item._id, activeTab.slice(0, -1))}
+                                className="p-3 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {filteredData.length === 0 && (
+                      <div className="py-32 text-center">
+                        <p className="text-slate-400 font-normal italic">No records found matching your criteria.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
 
 const StatCard: React.FC<{ label: string; value: number; icon: any; color: string }> = ({ label, value, icon: Icon, color }) => (
-  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform bg-${color}-50 text-${color}-600`}>
+  <div className="bg-white p-10 rounded-[40px] border border-slate-100 soft-shadow hover:-translate-y-1 transition-all group">
+    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform bg-slate-50 text-slate-900`}>
       <Icon className="w-6 h-6" />
     </div>
-    <div className="text-4xl font-black tracking-tighter mb-1">{value}</div>
-    <div className="text-sm font-bold text-gray-400 uppercase tracking-widest">{label}</div>
+    <div className="text-5xl font-display font-normal tracking-tight text-slate-900 mb-2 leading-none">{value}</div>
+    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</div>
   </div>
 );
 
@@ -234,8 +243,8 @@ const getTableHeaders = (tab: Tab): string[] => {
 };
 
 const renderRowCells = (tab: Tab, item: any) => {
-  const cellClass = "px-6 py-4 text-sm font-medium text-gray-600";
-  const boldClass = "px-6 py-4 text-sm font-bold text-black";
+  const cellClass = "px-8 py-6 text-sm font-normal text-slate-500 leading-relaxed";
+  const boldClass = "px-8 py-6 text-sm font-bold text-slate-900 tracking-tight";
   
   switch (tab) {
     case 'users':
@@ -244,13 +253,13 @@ const renderRowCells = (tab: Tab, item: any) => {
           <td className={boldClass}>{item.name}</td>
           <td className={cellClass}>{item.email}</td>
           <td className={cellClass}>
-            <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${
-              item.role === 'admin' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
+            <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${
+              item.role === 'admin' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-50 text-slate-500 border border-slate-100'
             }`}>
               {item.role}
             </span>
           </td>
-          <td className="px-6 py-4 text-xs font-mono text-gray-400">{new Date(item.createdAt).toLocaleDateString()}</td>
+          <td className="px-8 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(item.createdAt).toLocaleDateString()}</td>
         </>
       );
     case 'projects':
@@ -260,8 +269,8 @@ const renderRowCells = (tab: Tab, item: any) => {
           <td className={cellClass}>{item.ownerName}</td>
           <td className={cellClass}>{item.type}</td>
           <td className={cellClass}>
-            <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-black" style={{ width: `${item.completionPercentage}%` }} />
+            <div className="w-24 h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+              <div className="h-full bg-slate-900" style={{ width: `${item.completionPercentage}%` }} />
             </div>
           </td>
         </>
@@ -272,13 +281,13 @@ const renderRowCells = (tab: Tab, item: any) => {
           <td className={boldClass}>{item.title}</td>
           <td className={cellClass}>{item.ownerName}</td>
           <td className={cellClass}>
-            <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${
-              item.claimedBy ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+            <span className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${
+              item.claimedBy ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-blue-50 text-blue-600 border border-blue-100'
             }`}>
               {item.claimedBy ? 'Claimed' : 'Available'}
             </span>
           </td>
-          <td className="px-6 py-4 text-xs font-mono text-gray-400">{new Date(item.expiresAt).toLocaleDateString()}</td>
+          <td className="px-8 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(item.expiresAt).toLocaleDateString()}</td>
         </>
       );
     case 'items':
@@ -287,16 +296,24 @@ const renderRowCells = (tab: Tab, item: any) => {
           <td className={boldClass}>{item.title}</td>
           <td className={cellClass}>{item.ownerName}</td>
           <td className={cellClass}>{item.category}</td>
-          <td className={cellClass}>{item.status}</td>
+          <td className={cellClass}>
+            <span className="px-3 py-1 bg-slate-50 text-slate-500 border border-slate-100 rounded-lg text-[9px] font-bold uppercase tracking-widest">
+              {item.status}
+            </span>
+          </td>
         </>
       );
     case 'swaps':
       return (
         <>
-          <td className="px-6 py-4 text-xs font-mono text-gray-400">{item.itemId}</td>
+          <td className="px-8 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.itemId}</td>
           <td className={cellClass}>{item.requesterName}</td>
           <td className={cellClass}>{item.ownerId}</td>
-          <td className={cellClass}>{item.status}</td>
+          <td className={cellClass}>
+            <span className="px-3 py-1 bg-slate-50 text-slate-500 border border-slate-100 rounded-lg text-[9px] font-bold uppercase tracking-widest">
+              {item.status}
+            </span>
+          </td>
         </>
       );
     default: return null;

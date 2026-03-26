@@ -9,16 +9,24 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Email already registered' });
+    }
 
     const user = new User({ name, email, password });
     await user.save();
+    console.log(`New user registered: ${email}`);
 
     const token = jwt.sign({ id: user._id, email: user.email, name: user.name, role: (user as any).role }, JWT_SECRET, { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: (user as any).role } });
-  } catch (error) {
-    res.status(500).json({ message: 'Error registering user' });
+  } catch (error: any) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: error.message || 'Error registering user' });
   }
 });
 

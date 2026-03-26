@@ -24,7 +24,33 @@ router.post('/addItem', authenticateToken, async (req: AuthRequest, res) => {
 
 router.get('/items', async (req, res) => {
   try {
-    const items = await Item.find({ status: 'available' }).sort({ createdAt: -1 });
+    const items = await Item.aggregate([
+      { $match: { status: 'available' } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'ownerId',
+          foreignField: '_id',
+          as: 'ownerInfo'
+        }
+      },
+      { $unwind: '$ownerInfo' },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          image: 1,
+          category: 1,
+          ownerId: 1,
+          ownerName: 1,
+          status: 1,
+          createdAt: 1,
+          ownerRating: '$ownerInfo.averageRating',
+          ownerTotalRatings: '$ownerInfo.totalRatings'
+        }
+      },
+      { $sort: { createdAt: -1 } }
+    ]);
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: 'Error listing items' });

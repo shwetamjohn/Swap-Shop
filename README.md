@@ -10,16 +10,20 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 *   **Project Types:** Categorize projects as *Durable*, *Temporary*, or *Urgent*.
 
 ### 2. Proximity Pulse (Food Sharing)
-*   **Geospatial Mapping:** Interactive map (Leaflet.js) showing nearby food listings.
+*   **Live Geolocation:** Real-time location tracking using `navigator.geolocation`. The map automatically centers on your position and shows a "You are here" marker.
+*   **Geospatial Mapping:** Interactive map (Leaflet.js) showing nearby food listings within a 5km radius.
+*   **Distance Calculation:** Results are sorted by proximity, showing exactly how many kilometers away each listing is.
 *   **Atomic "Dibs":** Secure claiming system to prevent multiple users from claiming the same item simultaneously.
 *   **Auto-Expiry:** Listings automatically expire after 24 hours via MongoDB TTL indexes to ensure freshness.
 
 ### 3. Swap Exchange (Item Trading)
 *   **Direct Trade:** List items for trade and browse community offerings.
 *   **Request System:** Send and manage swap requests with real-time status updates (Pending, Accepted, Rejected).
+*   **Trust Rating System:** Rate your neighbors after a successful exchange. Ratings contribute to a user's average score and trust badges (Bronze, Silver, Gold).
 
 ### 4. Command Center (User Dashboard)
 *   **Impact Metrics:** Track your Trust Score, Global Impact, and Local Impact.
+*   **Reputation Management:** View your average rating, total reviews, and recent feedback from the community.
 *   **Activity Feed:** Real-time overview of your active projects, food posts, and swap requests.
 
 ### 5. Moderation Hub (Admin Panel)
@@ -98,9 +102,14 @@ SwapShop includes a robust moderation system to ensure community safety and cont
 *   `POST /api/projects/:id/handoff` - Request project handoff (Protected)
 
 ### Food
-*   `GET /api/food` - List nearby active food posts
+*   `GET /api/food/nearby` - List nearby food posts (requires `lat`, `lng`, `radius`)
 *   `POST /api/food` - Create a food listing (Protected)
 *   `POST /api/food/:id/dibs` - Claim a food item (Protected)
+
+### Users & Ratings
+*   `GET /api/users/:id/profile` - Get public profile and ratings
+*   `POST /api/users/:id/rate` - Submit a rating for a user (Protected)
+*   `GET /api/users/:id/ratings` - List all ratings for a user
 
 ### Admin
 *   `GET /api/admin/dashboard` - Platform statistics

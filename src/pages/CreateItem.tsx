@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Camera, ArrowLeft, Upload, ShieldCheck, Info } from 'lucide-react';
+import { Camera, ArrowLeft, Upload, ShieldCheck, Info, Plus } from 'lucide-react';
 
 export default function CreateItem() {
   const navigate = useNavigate();
@@ -39,47 +39,50 @@ export default function CreateItem() {
   const categories = ['Electronics', 'Sports', 'Music', 'Books', 'Home', 'Fashion'];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-20">
-      <div className="max-w-4xl mx-auto px-6 pt-12">
+    <div className="min-h-screen bg-[#FAF9F6] pb-20 selection:bg-slate-200 selection:text-slate-900">
+      <div className="max-w-4xl mx-auto px-6 pt-16">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-black transition-colors mb-12 group"
+          className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors mb-16 group"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back
         </button>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[40px] shadow-2xl p-10 lg:p-16 border border-gray-100"
+          className="bg-white rounded-[40px] soft-shadow p-12 lg:p-20 border border-slate-50"
         >
-          <div className="mb-12">
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-gray-900 mb-4 leading-tight">
-              LIST YOUR ITEM
+          <div className="mb-16">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-slate-50 text-slate-500 rounded-full text-[9px] font-bold uppercase tracking-widest border border-slate-100 mb-8">
+              <Plus className="w-3.5 h-3.5" /> New Listing
+            </div>
+            <h1 className="text-5xl lg:text-6xl font-display font-normal tracking-tight text-slate-900 mb-6 leading-none">
+              List Your <span className="italic text-slate-400">Item</span>
             </h1>
-            <p className="text-lg text-gray-500 font-medium max-w-lg">
+            <p className="text-xl text-slate-500 font-normal leading-relaxed max-w-lg">
               Give your items a second life. Describe it well to find the perfect swap.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-12">
+          <form onSubmit={handleSubmit} className="space-y-16">
             {/* Image Upload Mock */}
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+            <div className="space-y-6">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
                 Item Photo
               </label>
-              <div className="relative aspect-[16/9] bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-4 group hover:border-black transition-colors cursor-pointer overflow-hidden">
+              <div className="relative aspect-[16/9] bg-slate-50 rounded-[32px] border border-slate-100 flex flex-col items-center justify-center gap-6 group hover:bg-slate-100 transition-all cursor-pointer overflow-hidden">
                 {formData.image ? (
                   <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <>
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:scale-110 transition-transform">
-                      <Camera className="w-8 h-8 text-gray-400" />
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center soft-shadow border border-slate-50 group-hover:scale-110 transition-transform duration-500">
+                      <Camera className="w-8 h-8 text-slate-300" />
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-bold text-gray-900">Click to upload photo</p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+                      <p className="text-sm font-bold text-slate-900">Click to upload photo</p>
+                      <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest">PNG, JPG up to 10MB</p>
                     </div>
                   </>
                 )}
@@ -88,14 +91,14 @@ export default function CreateItem() {
                   placeholder="Paste image URL here for now..."
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="absolute bottom-6 left-6 right-6 px-6 py-3 bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl text-xs font-medium focus:ring-2 focus:ring-black outline-none"
+                  className="absolute bottom-8 left-8 right-8 px-8 py-4 bg-white/90 backdrop-blur-md border border-slate-100 rounded-2xl text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-none soft-shadow"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-6">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
                   Item Title
                 </label>
                 <input
@@ -104,18 +107,18 @@ export default function CreateItem() {
                   placeholder="e.g. Vintage Polaroid Camera"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-6 py-5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold"
+                  className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium"
                 />
               </div>
 
-              <div className="space-y-4">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+              <div className="space-y-6">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
                   Category
                 </label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-6 py-5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold appearance-none"
+                  className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium appearance-none"
                 >
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -124,8 +127,8 @@ export default function CreateItem() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+            <div className="space-y-6">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
                 Description
               </label>
               <textarea
@@ -134,36 +137,38 @@ export default function CreateItem() {
                 placeholder="Tell us about the condition, age, and why you're swapping it..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-6 py-5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-black transition-all text-sm font-bold resize-none"
+                className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all text-sm font-medium resize-none min-h-[160px]"
               />
             </div>
 
-            <div className="bg-blue-50/50 rounded-3xl p-6 flex items-start gap-4 border border-blue-100">
-              <Info className="w-6 h-6 text-blue-500 shrink-0 mt-1" />
+            <div className="bg-blue-50/30 rounded-[32px] p-8 flex items-start gap-6 border border-blue-100">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center soft-shadow shrink-0">
+                <Info className="w-5 h-5 text-blue-500" />
+              </div>
               <div>
-                <h4 className="text-sm font-bold text-blue-900 mb-1">Swap Tip</h4>
-                <p className="text-xs text-blue-700 leading-relaxed font-medium">
+                <h4 className="text-sm font-bold text-blue-900 mb-2 uppercase tracking-tight">Swap Tip</h4>
+                <p className="text-sm text-blue-700 leading-relaxed font-normal">
                   Be honest about the condition of your item. Good descriptions lead to faster and more successful swaps.
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-6 pt-8">
+            <div className="flex flex-col sm:flex-row items-center gap-10 pt-10 border-t border-slate-50">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto px-12 py-5 bg-black text-white font-black text-lg rounded-3xl hover:bg-gray-800 transition-all shadow-xl shadow-black/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all soft-shadow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-4 group"
               >
                 {loading ? (
-                  <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <Upload className="w-6 h-6" />
-                    PUBLISH LISTING
+                    <Upload className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
+                    Publish Listing
                   </>
                 )}
               </button>
-              <div className="flex items-center gap-2 text-xs text-gray-400 font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <ShieldCheck className="w-5 h-5 text-green-500" />
                 Secure Listing
               </div>
@@ -171,7 +176,7 @@ export default function CreateItem() {
           </form>
         </motion.div>
 
-        <p className="text-center text-xs text-gray-400 mt-12 font-medium">
+        <p className="text-center text-[10px] font-bold uppercase tracking-widest text-slate-300 mt-16">
           By publishing, you agree to SwapShop's Terms of Service and Community Guidelines.
         </p>
       </div>

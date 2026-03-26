@@ -13,57 +13,44 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-5">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-            <ShoppingBag className="w-6 h-6 text-white" />
+        <Link to="/" className="flex items-center gap-4 group">
+          <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-all duration-500 soft-shadow">
+            <ShoppingBag className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight leading-none">SwapShop</span>
+            <span className="text-2xl font-display font-normal tracking-tight text-slate-900 leading-none">Swap<span className="italic">Shop</span></span>
             {user?.role === 'admin' && (
-              <span className="text-[8px] font-black uppercase tracking-widest text-red-600 mt-0.5">Admin Mode</span>
+              <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-slate-400 mt-1">Admin Protocol</span>
             )}
           </div>
         </Link>
 
+        <div className="hidden lg:flex items-center gap-12">
+          <Link to="/projects" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Relay Board</Link>
+          <Link to="/food" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Proximity Pulse</Link>
+          <Link to="/swap" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Swap Exchange</Link>
+          <Link to="/chat" className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Pulse Chat</Link>
+        </div>
+
         <div className="flex items-center gap-6">
-          {user?.role === 'admin' && (
-            <Link to="/admin" className="flex items-center gap-2 text-sm font-black text-red-600 hover:text-red-700 transition-colors">
-              <Shield className="w-5 h-5" />
-              <span className="hidden sm:inline">Admin Panel</span>
-            </Link>
-          )}
-          <Link to="/projects" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
-            <Globe className="w-5 h-5" />
-            <span className="hidden sm:inline">Relay Board</span>
-          </Link>
-          <Link to="/food" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
-            <MapPin className="w-5 h-5" />
-            <span className="hidden sm:inline">Proximity Pulse</span>
-          </Link>
-          <Link to="/swap" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="hidden sm:inline">Swap Exchange</span>
-          </Link>
-          
           {user ? (
-            <>
-              <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="hidden sm:inline">Dashboard</span>
+            <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+              <Link to="/dashboard" className="p-2.5 hover:bg-white hover:soft-shadow rounded-xl transition-all text-slate-400 hover:text-slate-900 group">
+                <LayoutDashboard className="w-4 h-4" />
               </Link>
-              <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
-                <UserIcon className="w-5 h-5" />
-                <span className="hidden sm:inline">Profile</span>
+              <Link to="/profile" className="p-2.5 hover:bg-white hover:soft-shadow rounded-xl transition-all text-slate-400 hover:text-slate-900 group">
+                <UserIcon className="w-4 h-4" />
               </Link>
-              <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                <LogOut className="w-5 h-5" />
+              <div className="w-px h-5 bg-slate-200 mx-1" />
+              <button onClick={handleLogout} className="p-2.5 hover:bg-white hover:soft-shadow rounded-xl transition-all text-slate-400 hover:text-red-500">
+                <LogOut className="w-4 h-4" />
               </button>
-            </>
+            </div>
           ) : (
-            <Link to="/" className="px-6 py-2 bg-black text-white text-sm font-bold rounded-full hover:bg-gray-800 transition-colors">
-              Login
+            <Link to="/" className="px-8 py-3 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-full hover:bg-slate-800 transition-all active:scale-95">
+              Access Portal
             </Link>
           )}
         </div>
