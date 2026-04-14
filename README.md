@@ -42,17 +42,6 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
 
 ---
 
-## Prerequisites
-
-*   **Node.js** (v18 or higher recommended)
-*   **MongoDB** (Atlas cluster or local instance)
-*   **Environment Variables:** Create a `.env` file in the root directory with the following:
-    ```env
-    MONGODB_URI=your_mongodb_connection_string
-    JWT_SECRET=your_secure_jwt_secret
-    PORT=3000
-    ```
-
 ## Security & Platform Governance
 
 ### Administrative Oversight
