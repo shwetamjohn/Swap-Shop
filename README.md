@@ -53,29 +53,6 @@ SwapShop is a full-stack community-driven platform designed to foster local coll
     PORT=3000
     ```
 
----
-
-## Installation & Setup
-
-1.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
-
-2.  **Seed the Database (Optional):**
-    Populate the database with sample users, projects, and items for testing.
-    ```bash
-    npx tsx seed.ts
-    ```
-
-3.  **Start Development Server:**
-    ```bash
-    npm run dev
-    ```
-    The app will be available at `http://localhost:3000`.
-
----
-
 ## Security & Platform Governance
 
 ### Administrative Oversight
